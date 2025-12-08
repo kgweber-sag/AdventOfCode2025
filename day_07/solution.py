@@ -1,9 +1,12 @@
 import argparse
-
+import re
+from collections import defaultdict
 
 class Solver:
     def __init__(self, file_path=None):
         self.load_data(file_path)
+        self.beam_splits = 0
+        self.beams = {}
 
     def load_data(self, file_path):
         with open(file_path, "r") as file:
@@ -11,11 +14,34 @@ class Solver:
 
         self.data = data
 
+    def split_beam(self, col):
+        self.beam_splits += 1
+        return (col-1, col+1)
+    
+
     def part_1(self):
-        pass
+        self.beams = {self.data.pop(0).index('S') : 1}
+        lines = [line for line in self.data if '^' in line]
+        splits = 0
+
+        for row in lines:
+            next_beams = defaultdict(int)
+
+            for i, n  in self.beams.items():
+                if row[i] == '^':
+                    splits += 1
+                    next_beams[i-1] += n
+                    next_beams[i+1] += n
+                else:
+                    next_beams[i] += n
+
+            self.beams = next_beams
+
+        return self.beam_splits
+        
 
     def part_2(self):
-        pass
+        return sum(self.beams.values())
 
 
 if __name__ == "__main__":
